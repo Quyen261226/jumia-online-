@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUMIA GLOBAL - NY EDITION</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      
+        :root {
+            --jumia-orange: #f68b1e;
+            --jumia-yellow: #FFD700;
+            --btn-blue: #1e90ff;
+            --text-main: #333;
+        }
+
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--jumia-orange); display: flex; justify-content: center; min-height: 100vh; }
+        .app-frame { width: 100%; max-width: 480px; background: #fff; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.4); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* HEADER */
+        .brand-header { background-color: var(--jumia-orange); padding: 60px 20px 40px 20px; text-align: center; color: white; }
+        .brand-header h1 { margin: 0; font-size: 35px; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; }
+        .nyse-header { width: 100%; height: 180px; background: url('https://group.jumia.com/images/jumia-logo.png') center/cover; display: none; border-radius: 0 0 20px 20px; }
+        .content-panel { background: white; border-radius: 40px 40px 0 0; margin-top: -40px; padding: 40px 25px 100px 25px; flex: 1; z-index: 10; }
+
+        /* FORM */
+        .row-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        .row-group select { width: 120px; padding: 16px; border-radius: 15px; border: 2px solid #f0f0f0; background: #f9f9f9; outline: none; }
+        input { width: 100%; padding: 16px; border-radius: 15px; border: 2px solid #f0f0f0; background: #f9f9f9; font-size: 16px; box-sizing: border-box; outline: none; margin-bottom: 10px; }
+        .primary-btn { width: 100%; padding: 20px; background: var(--jumia-orange); color: white; border: none; border-radius: 18px; font-size: 18px; font-weight: 800; cursor: pointer; margin-top: 15px; }
+
+        #info-modal.hidden { display: none !important; }
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+        /* VIP CARDS */
+        .vip-card { background: #fff; border: 1px solid #eee; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .vip-info b { color: var(--jumia-orange); font-size: 18px; display: block; }
+        .vip-limit { background: #fff9e6; color: #333; font-weight: bold; padding: 8px 15px; border-radius: 10px; }
+        
+        /* HIỆU ỨNG NÚT */
+        .primary-btn:active, .btn-submit-order:active { transform: scale(0.95); opacity: 0.9; }
+    </style>
+</head>
+<style>
+    .btn-submit-order { background: var(--btn-blue); color: white; padding: 18px; border-radius: 40px; border: none; width: 100%; font-weight: bold; font-size: 20px; margin: 20px 0; box-shadow: 0 8px 20px rgba(30, 144, 255, 0.3); cursor: pointer; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .stat-item { background: white; padding: 15px; border-radius: 15px; border: 1px solid #f0f0f0; }
+    .stat-item small { color: #999; font-size: 11px; display: block; margin-bottom: 5px; }
+    .stat-item b { font-size: 16px; color: #333; }
+    .stat-red { color: #ff4d4d !important; }
+    
+    .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #ccc; cursor: pointer; text-decoration: none; }
+    .nav-link.active { color: var(--btn-blue); }
+    .nav-link i { font-size: 22px; }
+    .tab-section { display: none; animation: slideUp 0.4s ease-out; }
+    .tab-section.active { display: block; }
+    .hidden { display: none !important; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .bottom-navbar {
+    display: none; /* Mặc định ẩn, JS sẽ mở sau */
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 480px; /* Khớp với khung điện thoại của bạn */
+    height: 60px;
+    background: white;
+    
+    /* QUAN TRỌNG NHẤT: */
+    z-index: 99999 !important; 
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.1); /* Thêm bóng đổ để tách biệt với nền */
+}
+
+/* 2. Khi đăng nhập xong, chúng ta sẽ thêm class này để hiện menu */
+#bottom-nav { 
+    display: none; 
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100% !important;
+    max-width: 480px;
+    height: 60px;
+    background: white !important;
+    z-index: 999999 !important; /* Đẩy lên cao nhất */
+    display: flex; /* Đảm bảo khi hiện nó là dạng flex */
+    align-items: center;
+    justify-content: space-around;
+}
+
+   .nav-link i { font-size: 18px; margin-bottom: 3px; }
+   .nav-link.active { color: var(--btn-blue); }
+</style>
+
+<body>
+    <div onclick="toggleAdmin()" style="position:fixed; top:5px; left:5px; width:30px; height:30px; z-index:10000; cursor:pointer; background:rgba(0,0,0,0.1); border-radius:5px; display:flex; align-items:center; justify-content:center; color:#666; font-size:18px;">
+    ⚙️
+</div>
+<div class="app-frame">
+    <div id="auth-header" class="brand-header">
+        <h1>⭐️ JUMIA</h1>
+        <p>Your Global Shopping Partner</p>
+     </div>
+     <div id="banner-container" style="width: 100%; height: 180px; position: relative; overflow: hidden; border-radius: 0 0 20px 20px; background: #f68b1e;">
+     <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=800" class="banner-slide" style="width: 100%; height: 100%; object-fit: cover; position: absolute; opacity: 1; transition: opacity 1s;">
+     <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=800" class="banner-slide" style="width: 100%; height: 100%; object-fit: cover; position: absolute; opacity: 0; transition: opacity 1s;">
+     <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800" class="banner-slide" style="width: 100%; height: 100%; object-fit: cover; position: absolute; opacity: 0; transition: opacity 1s;">
+   </div>
+
+    <div class="content-panel" id="main-panel">
+        <div id="login-screen">
+            <h2 style="text-align:center; margin-bottom:25px;">Login</h2>
+            <div class="row-group">
+                <select id="area-codes"></select>
+                <input type="tel" id="user-phone" placeholder="Mobile Number">
+            </div>
+            <input type="password" id="user-pass" placeholder="Password">
+            <button class="primary-btn" onclick="handleLogin()">SIGN IN</button>
+            <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 14px;">
+                <a href="javascript:void(0)" onclick="alert('Registration is closed.')" style="color: #666; text-decoration: none;">Register account</a>
+                <a href="javascript:void(0)" style="color: var(--jumia-orange); text-decoration: none; font-weight: bold;"><i class="fa fa-headset"></i> Service</a>
+            </div>
+        </div>
+
+        <div id="dashboard-screen" class="hidden">
+    
+    <div id="tab-home" class="tab-section active">
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+             <div onclick="showModal('about')" style="flex: 1; background: linear-gradient(135deg, #f68b1e, #ffaa45); color: white; padding: 15px; border-radius: 15px; text-align: center; cursor: pointer;">
+                 <i class="fa fa-info-circle" style="font-size: 24px; margin-bottom: 8px;"></i>
+                 <div style="font-weight: bold; font-size: 14px;">About Us</div>
+             </div>
+             <div onclick="showModal('rules')" style="flex: 1; background: linear-gradient(135deg, #1e90ff, #5cb2ff); color: white; padding: 15px; border-radius: 15px; text-align: center; cursor: pointer;">
+                 <i class="fa fa-book-open" style="font-size: 24px; margin-bottom: 8px;"></i>
+                 <div style="font-weight: bold; font-size: 14px;">How it Works</div>
+             </div>
+        </div>
+
+        <h3 style="margin-top:0">Membership Level</h3>
+<div id="vip-container"></div>
+
+<h3 style="margin: 15px 10px;">Recommended Products</h3>
+<div id="product-list-display" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; margin-bottom: 80px;"></div>
+        
+    </div> <div id="tab-order" class="tab-section">
+
+    <button class="btn-submit-order" onclick="startOrderEffect()">
+    Submit Order
+</button>
+
+    <h3 style="margin-bottom: 15px;">Today's Achievements</h3>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <small>Total Assets (USD)</small>
+            <b id="val-assets">$0</b>
+        </div>
+        <div class="stat-item">
+            <small>Commission Today</small>
+            <b id="val-commission" class="stat-red">$0.00</b>
+        </div>
+        <div class="stat-item">
+            <small>Orders Today</small>
+            <b id="val-orders" class="stat-red">0 Units</b>
+        </div>
+        <div class="stat-item">
+            <small>Team Income</small>
+            <b id="val-team" class="stat-red">$0.00</b>
+        </div>
+        <div class="stat-item" style="grid-column: span 2;">
+            <small>Pending</small>
+            <b id="val-turnover" class="stat-red">1</b>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* Quan trọng: Lớp này giúp ẩn hoàn toàn khi không dùng đến */
+    .hidden { display: none !important; }
+</style>
+            
+<div id="tab-account" class="tab-section">
+    <div style="background: linear-gradient(135deg, #1e90ff, #5cb2ff); padding: 40px 20px 30px; border-radius: 0 0 30px 30px; color: white; margin-bottom: 25px;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px;"><i class="fa fa-user"></i></div>
+    <div style="flex-grow: 1;">
+    <div id="user-phone-display" style="font-weight:bold; font-size:18px;">+1 416-***-237</div>
+    <div id="user-id-display" style="font-size: 12px; color: yellow; margin-top:5px;">ID: 40213</div>
+</div>
+
+        <div style="margin-top: 25px; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div><small style="opacity: 0.8; font-size: 12px;">Account Balance</small><br><b id="acc-balance" style="font-size: 22px;">$84,000.00</b></div>
+                <button onclick="switchTab('tab-order')" style="background: white; color: #1e90ff; border: none; padding: 8px 18px; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer;">Details</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button onclick="showModal('deposit')" style="flex: 1; padding: 12px; border: none; border-radius: 10px; background: white; color: #1e90ff; font-weight: bold; cursor: pointer;">Deposit</button>
+                <button onclick="openWithdrawPage()" style="flex: 1; padding: 12px; border: none; border-radius: 10px; background: #ffaa45; color: white; font-weight: bold; cursor: pointer;">Withdraw</button>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px;">
+        <h3 style="margin-bottom: 10px; font-size: 18px;">Settings</h3>
+        
+       <div class="stat-card" onclick="showChangePasswordModal()" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; cursor: pointer;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <i class="fa fa-key" style="color: #ffa500;"></i>
+        <span>Change Password</span>
+    </div>
+    <i class="fa fa-chevron-right" style="color: #ccc; font-size: 12px;"></i>
+</div>
+
+        <div class="stat-card" onclick="showModal('bank')" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 10px;"><i class="fa fa-university" style="color: #ffa500;"></i> <span>Bank Card & USDT</span></div>
+            <i class="fa fa-chevron-right" style="color: #ccc; font-size: 12px;"></i>
+        </div>
+
+        <div class="stat-card" onclick="showModal('about')" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 10px;"><i class="fa fa-info-circle" style="color: #ffa500;"></i> <span>About Us</span></div>
+            <i class="fa fa-chevron-right" style="color: #ccc; font-size: 12px;"></i>
+        </div>
+     <div class="stat-card" onclick="showLanguageModal()" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-radius: 12px; cursor: pointer;">
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <i class="fa fa-globe" style="color: #ffa500;"></i>
+        <span class="lang-text" data-en="Language" data-vi="Ngôn ngữ">Language</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <small id="current-lang" style="color: #666;">English</small>
+        <i class="fa fa-chevron-right" style="color: #ccc; font-size: 12px;"></i>
+    </div>
+</div>
+
+        <div onclick="location.reload()" style="margin-top: 10px; padding: 15px; color: #ff4d4d; font-weight: bold; text-align: center; cursor: pointer;">Logout</div>
+    </div>
+</div> 
+
+    
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+<script>
+    
+    const g1 = ["+84","+1","+44","+91","+81","+20","+212","+254","+27","+33","+49","+61"];
+    const g2 = ["+357","+420","+45","+253","+593","+503","+240","+291","+372","+251"];
+    const g3 = ["+373","+377","+976","+382","+258","+95","+264","+977","+31","+64"];
+    const g4 = ["+263","+247","+248","+256","+262","+268","+290","+297","+298","+299"];
+    const g5 = ["+850","+852","+853","+221","+225","+239","+234","+670","+672","+673"];
+
+    window.onload = function() {
+        const select = document.getElementById('area-codes');
+        const allCodes = [...new Set([...g1, ...g2, ...g3, ...g4, ...g5])];
+        allCodes.forEach(c => {
+            let opt = new Option(c, c);
+            select.add(opt);
+        });
+
+        const vips = [
+    { n: 'VIP 1', r: '0.3%', p: '$1,000.00', o: '40' },
+    { n: 'VIP 2', r: '0.35%', p: '$3,000.00', o: '50' },
+    { n: 'VIP 3', r: '0.4%', p: '$8,000.00', o: '60' },
+    { n: 'VIP 4', r: '0.45%', p: '$15,000.00', o: '70' },
+    { n: 'VIP 5', r: '0.5%', p: '$30,000.00', o: '80' },
+    { n: 'VIP 6', r: '0.55%', p: '$50,000.00', o: '90' },
+    { n: 'VIP 7', r: '0.6%', p: '$100,000.00', o: '100' },
+    { n: 'VIP 8', r: '0.7%', p: '$200,000.00', o: '110' },
+    { n: 'VIP 9', r: '1%', p: '$500,000.00', o: '120' }
+];
+const products = [
+    { n: "Bags Fashion", p: "1,250.00", img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200" },
+    { n: "Watch Luxury", p: "3,500.00", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200" },
+    { n: "Sneaker Sport", p: "890.00", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200" },
+    { n: "Headphone Pro", p: "560.00", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200" },
+    { n: "Glass Style", p: "320.00", img: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200" },
+    { n: "Camera Digital", p: "12,400.00", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=200" }
+];
+        
+        const container = document.getElementById('vip-container');
+        vips.forEach(v => {
+            
+    container.innerHTML += `
+        <div class="vip-card" style="display: flex; justify-content: space-between; align-items: center; background: white; margin: 10px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <div class="vip-info" style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
+                <b style="font-size: 16px; color: #333;">${v.n}</b>
+                <span style="font-size: 13px; color: #666;">Commission: ${v.r}</span>
+                <span style="font-size: 12px; color: #ff9800; font-weight: 500;">${v.o} orders</span>
+            </div>
+            <div class="vip-limit" style="background: #fff8e1; color: #ff9800; padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 14px;">
+                ${v.p}
+            </div>
+            
+        </div>`;
+});
+    };
+
+   function handleLogin() {
+    // 1. Lệnh ẩn màn hình Login và hiện Dashboard
+    const loginScreen = document.getElementById('login-screen');
+    const dashboardScreen = document.getElementById('dashboard-screen');
+    const authHeader = document.getElementById('auth-header');
+    const nyseHeader = document.getElementById('nyse-header');
+    const savedID = localStorage.getItem('currentUserID') || "ID-0000";
+const savedPhone = localStorage.getItem('currentUserPhone') || "098****888";
+
+    if(loginScreen) loginScreen.classList.add('hidden');
+    if(dashboardScreen) dashboardScreen.classList.remove('hidden');
+    if(authHeader) authHeader.classList.add('hidden');
+    if(nyseHeader) nyseHeader.style.display = 'block';
+    if(document.getElementById('user-phone-display')) {
+    document.getElementById('user-phone-display').innerText = savedPhone;
+}
+if(document.getElementById('user-id-display')) {
+    document.getElementById('user-id-display').innerText = savedID;
+}
+    
+
+    // 2. LỆNH CỨU CÁNH: Ép menu hiện lên
+    setTimeout(function() {
+        var menu = document.getElementById('bottom-nav');
+        if (menu) {
+            // Ép trình duyệt phải hiện menu lên trên cùng
+            menu.setAttribute('style', 'display: flex !important; position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; z-index: 999999 !important; background: white !important;');
+            console.log("Menu đã hiện!");
+        } else {
+            alert("Lỗi: Không tìm thấy thẻ có ID là bottom-nav ở cuối file!");
+        }
+    }, 200);
+}
+    function switchTab(tabId, el) {
+    document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active'); // Sửa chỗ này: đổi id thành tabId
+    document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+
+    if (tabId === 'tab-history') {
+        renderHistory(); // Lệnh này để vẽ đơn hàng khi bấm vào nút
+    }
+}
+
+    function startOrderEffect() {
+        const btn = document.querySelector('.btn-submit-order');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerText = "Submit Order";
+            btn.disabled = false;
+        }, 1500);
+    }
+    let currentVipLevel = 0; // Mặc định ban đầu là VIP 0
+
+function toggleAdmin() {
+    // Đừng bao giờ ghi mật khẩu vào đây! Hãy đổi sang một biến gián tiếp (ví dụ: 'admin@123')
+    const ADMIN_KEY = "000000"; 
+
+    var pass = prompt("Admin:", "");
+    if (pass === ADMIN_KEY) {
+        var panel = document.getElementById('admin-panel');
+        var dash = document.getElementById('dashboard-screen');
+        var login = document.getElementById('login-screen');
+        var reg = document.getElementById('register-screen');
+
+        if (panel) {
+            // ẨN HẾT CÁC MÀN HÌNH KHÁC
+            if (dash) dash.classList.add('hidden');
+            if (login) login.classList.add('hidden');
+            if (reg) reg.classList.add('hidden');
+
+            // HIỆN BẢNG ADMIN VÀO TRUNG TÂM
+            panel.style.setProperty('display', 'flex', 'important');
+            panel.style.position = 'fixed';
+            panel.style.top = '0';
+            panel.style.left = '0';
+            panel.style.width = '100%';
+            panel.style.height = '100%';
+            panel.style.zIndex = "9999"; 
+            panel.style.flexDirection = 'column';
+
+            alert("Đã mở menu quản trị!");
+        } else {
+            alert("Không tìm thấy bảng Admin (ID: admin-panel)");
+        }
+    } else if (pass !== null) {
+        alert("Mã xác minh không chính xác!");
+    }
+}
+
+function adminChangeMoney(type) {
+    const amountInput = document.getElementById('admin-amount');
+    const assetsEl = document.getElementById('val-assets'); // ID hiển thị tiền của bạn
+    
+    let value = parseFloat(amountInput.value);
+    if (isNaN(value) || value <= 0) return alert("Nhập số tiền!");
+
+    let currentBalance = parseFloat(assetsEl.innerText.replace('$', '').replace(/,/g, '')) || 0;
+
+    if (type === 'add') currentBalance += value;
+    else currentBalance = Math.max(0, currentBalance - value);
+
+    assetsEl.innerText = "$" + currentBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+    amountInput.value = "";
+    alert("Thành công!");
+}
+
+function adminChangeVip() {
+    currentVipLevel = parseInt(document.getElementById('admin-vip-select').value);
+    alert("Đã chuyển sang VIP " + currentVipLevel);
+}
+
+
+
+    const registerHTML = `
+        <div id="register-screen" class="hidden">
+            <h2 style="text-align:center; margin-bottom:25px;">Register</h2>
+            <input type="tel" id="reg-phone" placeholder="Mobile Number">
+            <input type="password" id="reg-pass" placeholder="Password">
+            <input type="password" id="reg-pass-confirm" placeholder="Confirm Password">
+            <button class="primary-btn" onclick="processRegister()">SIGN UP</button>
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="javascript:void(0)" onclick="showLogin()" style="color: var(--jumia-orange); text-decoration: none;">Back to Login</a>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('main-panel').insertAdjacentHTML('beforeend', registerHTML);
+
+    function handleLogin() {
+    // 1. Chuyển màn hình và Header
+    const idsToHide = ['login-screen', 'register-screen', 'auth-header'];
+    idsToHide.forEach(id => {
+        let el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+
+    if(document.getElementById('dashboard-screen')) document.getElementById('dashboard-screen').classList.remove('hidden');
+    if(document.getElementById('nyse-header')) document.getElementById('nyse-header').style.display = 'block';
+
+    // 2. Lấy thông tin (Hiện số Mỹ + ID ngẫu nhiên)
+    const savedPhone = localStorage.getItem('currentUserPhone') || "+1 416-***-237";
+    const savedID = localStorage.getItem('currentUserID') || "40213";
+
+    // 3. Dán vào màn hình Setting (màn hình xanh)
+    const phoneDisplay = document.getElementById('user-phone-display');
+    const idDisplay = document.getElementById('user-id-display');
+
+    if(phoneDisplay) phoneDisplay.innerText = savedPhone;
+    if(idDisplay) idDisplay.innerText = "ID: " + savedID;
+
+    // 4. Hiện Menu dưới cùng
+    setTimeout(() => {
+        let nav = document.getElementById('bottom-nav');
+        if(nav) nav.style.setProperty('display', 'flex', 'important');
+    }, 100);
+}
+
+function showRegister() {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('register-screen').classList.remove('hidden');
+}
+
+function showLogin() {
+    document.getElementById('register-screen').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function processRegister() {
+    const phone = document.getElementById('reg-phone').value;
+    if (phone.trim() === "") return alert("Vui lòng nhập số điện thoại!");
+
+    // TỰ TẠO ID NGẪU NHIÊN 4 SỐ
+    const newID = Math.floor(1000 + Math.random() * 9000);
+
+    // Lưu danh sách cho Admin xem
+    var ds = JSON.parse(localStorage.getItem('dsNguoiDung')) || [];
+    ds.push({ id: "ID-" + newID, phone: phone, time: new Date().toLocaleString() });
+    localStorage.setItem('dsNguoiDung', JSON.stringify(ds));
+
+    // Lưu phiên đăng nhập hiện tại
+    localStorage.setItem('currentUserID', newID);
+    localStorage.setItem('currentUserPhone', phone);
+
+    alert("Đăng ký thành công! ID của bạn là: " + newID);
+    
+    // Gọi hàm để vào thẳng màn hình chính
+    handleLogin(); 
+}
+
+    const links = document.getElementsByTagName('a');
+    for (let i = 0; i < links.length; i++) {
+        if (links[i].innerText.toLowerCase().includes("register")) {
+            links[i].setAttribute("onclick", "showRegister()");
+        }
+    }
+    function chuyenTab(tabName) {
+    const vungNap = document.getElementById('vung-nap');
+    const vungUser = document.getElementById('vung-user');
+    const btnNap = document.getElementById('btn-nap');
+    const btnUser = document.getElementById('btn-user');
+
+    if (tabName === 'user') {
+        if(vungNap) vungNap.style.display = 'none';
+        if(vungUser) vungUser.style.display = 'block';
+        
+        // Đổi màu nút cho dễ phân biệt (Tùy chọn)
+        if(btnUser) btnUser.style.background = '#0a84ff';
+        if(btnNap) btnNap.style.background = '#2c2c2e';
+
+        // GỌI HÀM BƠM DỮ LIỆU VÀO ĐÂY
+        hienThiDanhSachAdmin();
+    } else {
+        if(vungNap) vungNap.style.display = 'block';
+        if(vungUser) vungUser.style.display = 'none';
+        
+        if(btnNap) btnNap.style.background = '#0a84ff';
+        if(btnUser) btnUser.style.background = '#2c2c2e';
+    }
+}
+
+function hienThiDanhSachAdmin() {
+    // 1. Lấy dữ liệu từ bộ nhớ
+    let ds = JSON.parse(localStorage.getItem('dsNguoiDung')) || [];
+    let listU = document.getElementById('hien-list-u');
+    
+    if (!listU) return;
+
+    // 2. Nếu không có ai đăng ký thì báo trống
+    if (ds.length === 0) {
+        listU.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:red; font-weight:bold;">CHƯA CÓ THÀNH VIÊN NÀO</td></tr>';
+        return;
+    }
+
+    // 3. Tạo bảng dữ liệu (Chữ ĐEN trên nền TRẮNG cho rõ)
+    let html = "";
+    ds.forEach((user, index) => {
+        html += `
+        <tr style="border-bottom: 1px solid #ddd; background-color: #fff;">
+            <td style="padding:12px; text-align:center; color: #000; font-weight:bold;">${index + 1}</td>
+            <td style="padding:12px; color: #000; font-weight:bold;">${user.phone}</td>
+            <td style="padding:12px; color: #ff0000; font-weight:bold; font-family: monospace;">${user.id}</td>
+        </tr>`;
+    });
+
+    // 4. Dán vào màn hình
+    listU.innerHTML = html;
+}
+</script>
+
+<div id="order-confirm-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:350px;">
+        <h3 style="text-align:center; margin-top:0;">Order Confirmed</h3>
+        <div id="order-detail-content"></div> 
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="closeOrderModal()" style="flex:1; padding:12px; background:#eee; border:none; border-radius:8px;">Cancel</button>
+            <button onclick="finalizeOrder()" style="flex:1; padding:12px; background:#1e90ff; color:white; border:none; border-radius:8px;">Submit</button>
+        </div>
+    </div>
+</div>
+<script>
+    let currentSlide = 0;
+
+function startBannerSlider() {
+    const slides = document.querySelectorAll('.banner-slide');
+    if (slides.length === 0) return;
+
+    setInterval(() => {
+        // Ẩn ảnh hiện tại
+        slides[currentSlide].style.opacity = 0;
+        
+        // Chuyển sang ảnh kế tiếp (xoay vòng 0, 1, 2)
+        currentSlide = (currentSlide + 1) % slides.length;
+        
+        // Hiện ảnh mới
+        slides[currentSlide].style.opacity = 1;
+    }, 3000); // 3 giây đổi một lần
+}
+
+// Chạy hàm ngay khi trang web sẵn sàng
+window.addEventListener('DOMContentLoaded', startBannerSlider)
+// Hàm này để "cài" sẵn đơn hàng 120k vào lịch sử
+function initPendingOrder() {
+    let history = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    
+    // Kiểm tra xem trong lịch sử đã có đơn 120k chưa
+    let hasOrder120k = history.some(item => item.price == 120000);
+    
+    if (!hasOrder120k) {
+        // Nếu chưa có, mình thêm mới một đơn vào đầu danh sách
+        let fixedOrder = {
+            id: "ORD" + Math.floor(Math.random() * 1000000),
+            name: "JUMIA Global VIP Package",
+            price: 120000,
+            commission: "660", // Tiền hoa hồng giả định
+            status: "Pending", // Trạng thái bị kẹt
+            time: new Date().toLocaleString(),
+            img: "https://ng.jumia.is/cms/0-1-c_category/generic_category/336x280_Electronics_Store.png"
+        };
+        
+        history.unshift(fixedOrder); // Đưa lên đầu danh sách
+        localStorage.setItem('orderHistory', JSON.stringify(history));
+    }
+}
+
+// Chạy hàm này ngay lập tức
+initPendingOrder();
+
+
+    const realRegisterHTML = `
+        <div id="register-screen" class="hidden">
+            <h2 style="text-align:center; margin-bottom:25px;">Create Account</h2>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold; color:#666; font-size:12px; margin-bottom: 5px; margin-left:10px;">Full Name</label>
+                <input type="text" id="reg-fullname" placeholder="Enter Full Name" style="margin-bottom:0px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold; color:#666; font-size:12px; margin-bottom: 5px; margin-left:10px;">Registration Code (If any)</label>
+                <input type="text" id="reg-invitation" placeholder="Enter registration code" style="margin-bottom:0px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold; color:#666; font-size:12px; margin-bottom: 5px; margin-left:10px;">Mobile Number</label>
+                <input type="tel" id="reg-phone" placeholder="Enter Mobile Number" style="margin-bottom:0px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold; color:#666; font-size:12px; margin-bottom: 5px; margin-left:10px;">Password</label>
+                <input type="password" id="reg-pass" placeholder="Create Password" style="margin-bottom:0px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold; color:#666; font-size:12px; margin-bottom: 5px; margin-left:10px;">Confirm Password</label>
+                <input type="password" id="reg-pass-confirm" placeholder="Re-enter password" style="margin-bottom:0px;">
+            </div>
+            <button class="primary-btn" onclick="processRealRegister()" style="margin-top:20px;">SIGN UP</button>
+            <div style="margin-top: 25px; text-align: center;">
+                <a href="javascript:void(0)" onclick="showLogin()" style="color: var(--jumia-orange); text-decoration: none; font-weight:bold;">Already have an account? Back to Login</a>
+            </div>
+        </div>
+    `;
+    
+    if(document.getElementById('main-panel')){
+        const oldReg = document.getElementById('register-screen');
+        if(oldReg) oldReg.remove();
+        document.getElementById('main-panel').insertAdjacentHTML('beforeend', realRegisterHTML);
+    }
+
+    function processRealRegister() {
+        if (document.getElementById('reg-fullname').value.trim() === "" || 
+            document.getElementById('reg-phone').value.trim() === "" || 
+            document.getElementById('reg-pass').value.trim() === "") {
+            return alert("Error: Required fields are missing.");
+        }
+
+        if (document.getElementById('reg-pass').value !== document.getElementById('reg-pass-confirm').value) {
+            return alert("Error: Passwords do not match.");
+        }
+
+        alert("Registration Successful!");
+        showLogin();
+    }
+
+    const aboutText = `
+    <div style="text-align: justify; line-height: 1.6;">
+        <p>Jumia is the leading e-commerce platform in Africa. Founded in 2012 and often referred to as the "Amazon of Africa," it serves as a comprehensive online marketplace offering a vast range of products, from electronics to high-end fashion.</p>
+        <p>Jumia operates as an integrated ecosystem consisting of an online marketplace, a logistics arm, and a payment service provider across the African continent...</p>
+    </div>
+`;
+
+    const rulesText = `<b>VIP MEMBERSHIP & ORDER SYSTEM</b><br><br>We offer 9 VIP Levels tailored to your investment. Once you fund your account, you will receive orders with values corresponding to your specific VIP level.<br><br><b>How it works:</b><br><br>1. <b>Receive & Complete:</b> Simply accept the assigned orders and complete them within the system.<br><br>2. <b>No Shipping Required:</b> You do not need to ship any physical goods. This system is designed solely to increase product engagement and sales visibility on our official platform.<br><br>3. <b>Earn Commission:</b> For every order successfully processed, you will instantly receive a percentage-based commission added to your balance.`;
+
+    function showModal(type) {
+    const modal = document.getElementById('info-modal');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+
+    if (type === 'about') {
+        title.innerText = "About Jumia Global";
+        body.innerHTML = aboutText;
+    } else if (type === 'bank') {
+        title.innerText = "Bank Card & USDT";
+        body.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                <input type="text" id="bank-name-input" placeholder="Full Name" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="text" id="bank-acc-input" placeholder="Bank Account Number" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <input type="text" id="bank-provider-input" placeholder="Bank Name (e.g. MB Bank)" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <hr style="border: 0.5px solid #eee; margin: 5px 0;">
+                <input type="text" id="usdt-addr-input" placeholder="USDT Address (TRC20)" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                <button onclick="saveBankInfo()" style="background: #1e90ff; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px;">Save Information</button>
+                <div id="save-status"></div>
+            </div>`;
+    } else if (type === 'deposit') {
+        title.innerText = "Deposit Funds";
+        body.innerHTML = `
+            <div style="text-align: center; padding: 10px;">
+                <div style="width: 60px; height: 60px; background: #e7f3ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fa fa-headset" style="font-size: 30px; color: #1e90ff;"></i>
+                </div>
+                <p style="color: #666; line-height: 1.5;">To ensure the safety of your funds, please contact our <b>24/7 Customer Service</b> to obtain the latest deposit address.</p>
+                <button onclick="window.open('https://t.me/Jumiashopp_bot', '_blank')"
+                    Contact Service Now
+                </button>
+            </div>`;
+    } else {
+        title.innerText = "How it Works";
+        body.innerHTML = rulesText;
+    }
+}
+    function closeModal() {
+    const modal = document.getElementById('info-modal');
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+}
+ function autoBanner() {
+    const slides = document.querySelectorAll('.banner-slide');
+    if (slides.length === 0) return;
+    
+    slides[slideIndex].style.opacity = '0';
+    slideIndex = (slideIndex + 1) % slides.length;
+    slides[slideIndex].style.opacity = '1';
+}
+
+setInterval(autoBanner, 3000);
+let userBalance = 0.00;
+let todayCommission = 0.00;
+
+function updateOrderDisplay() {
+    document.getElementById('display-total-assets').innerText = "$" + userBalance.toFixed(2);
+    document.getElementById('display-commission').innerText = "$" + todayCommission.toFixed(2);
+}
+
+window.addEventListener('load', function() {
+    updateOrderDisplay();
+});
+
+let currentOrder = null;
+
+function startOrderEffect() {
+    const loadingModal = document.getElementById('order-loading-modal');
+    const loadingText = document.getElementById('loading-percent');
+    
+    loadingModal.classList.remove('hidden');
+    let percent = 0;
+    
+    let interval = setInterval(() => {
+        percent += Math.floor(Math.random() * 15) + 5;
+        if (percent >= 100) {
+            percent = 100;
+            clearInterval(interval);
+            setTimeout(() => {
+                loadingModal.classList.add('hidden');
+                showOrderConfirmation();
+            }, 500);
+        }
+        loadingText.innerText = percent + "%";
+    }, 200);
+}
+function showOrderConfirmation() {
+    const modal = document.getElementById('order-confirm-modal');
+    const content = document.getElementById('order-detail-content');
+
+    // Lấy số dư hiện tại để kiểm tra
+    const currentAssets = parseFloat(document.getElementById('val-assets').innerText.replace('$', '')) || 0;
+    
+    // Cài đặt mức VIP của người dùng tại đây (Thay đổi từ 1 đến 9)
+    // Nếu bạn để là 0, hệ thống sẽ báo lỗi không cho quay
+    const userVipLevel = 1; 
+
+    if (userVipLevel === 0 || currentAssets <= 0) {
+        alert("Cấp độ VIP 0 hoặc số dư không đủ để thực hiện nhiệm vụ!");
+        return;
+    }
+
+    // Cấu hình khoảng hoa hồng theo từng cấp VIP bạn yêu cầu
+    const vipConfig = {
+        1: { min: 18, max: 34 },
+        2: { min: 110, max: 134 },
+        3: { min: 320, max: 380 },
+        4: { min: 1500, max: 3000 },
+        5: { min: 5000, max: 6000 },
+        6: { min: 6000, max: 9000 },
+        7: { min: 12000, max: 25000 },
+        8: { min: 28000, max: 37000 },
+        9: { min: 45000, max: 55000 }
+    };
+
+    // DANH SÁCH CHI TIẾT 30 SẢN PHẨM (Không lo bị lỗi)
+    const products = [
+        { name: "Shirts Short-sleeved Polo", price: 255.50 },
+        { name: "Pieces Automatic Buckle", price: 180.99 },
+        { name: "Men’s Black Faux Leather Auto Belt", price: 210.00 },
+        { name: "Mateamoda 3 In 1", price: 450.00 },
+        { name: "Luxury Leopard Pattern Frameless Glasses", price: 320.50 },
+        { name: "ADIDAS WideWalk Sneakers", price: 850.00 },
+        { name: "Men's Loafers Slip-on Casual Sneakers", price: 350.00 },
+        { name: "VANHUHU Men's Business Shoes Brown", price: 550.00 },
+        { name: "Fashionable Sporty Shoulder Bag", price: 280.00 },
+        { name: "MIDIA Woman crossbody bag", price: 320.50 },
+        { name: "ASHION Elegant PU Leather Tote Bag", price: 390.00 },
+        { name: "ASHION Chic PU Leather Tote Bag", price: 375.50 },
+        { name: "Bekia BEKIA Splicing Ladies Handbag", price: 420.00 },
+        { name: "Ladies' simple canvas crossbody bag", price: 199.99 },
+        { name: "Men's Casual Sneakers", price: 480.00 },
+        { name: "Feng Shui Black Obsidian Wealth Bracelet", price: 150.00 },
+        { name: "Bluetooth Call Smart Watch", price: 650.00 },
+        { name: "BINBOND Men's Fashion Watch", price: 290.00 },
+        { name: "MKTEL 5626 Button Phone", price: 210.00 },
+        { name: "FreeYond M5 Smartphone", price: 1100.00 },
+        { name: "Tecno Spark 40 Smart Phone", price: 1450.00 },
+        { name: "Maxi 20 Litres Microwave Oven", price: 890.00 },
+        { name: "Nexus 4 Burner Gas Cooker", price: 1200.00 },
+        { name: "Hikers 55'' Android Smart 4K TV", price: 3500.00 },
+        { name: "Royal 1.5 HP INVERTER Air Conditioner", price: 4200.00 },
+        { name: "Infinix Note 60 Pro 256GB", price: 2100.00 },
+        { name: "Royal 65″ QLED Google Smart TV", price: 5800.00 },
+        { name: "Vertical Stand For PS5 Console", price: 250.00 },
+        { name: "J36 Ultra Handheld Gaming Console", price: 450.00 },
+        { name: "Q9Pro 8K Android TV Stick", price: 380.00 }
+    ];
+
+    const index = Math.floor(Math.random() * products.length);
+    const item = products[index];
+    const imgNum = index + 1;
+
+    // Tính hoa hồng ngẫu nhiên trong khoảng của VIP
+    const config = vipConfig[userVipLevel];
+    const commission = (Math.random() * (config.max - config.min) + config.min).toFixed(2);
+
+    // Lưu giá trị hoa hồng để hàm finalizeOrder sử dụng cộng tiền
+    currentOrder = { commission: parseFloat(commission) };
+
+    // Giao diện bày trí đẹp mắt
+    content.innerHTML = `
+        <div style="text-align:center;">
+            <div style="position: relative; margin-bottom: 15px;">
+                <img src="img/${imgNum}.jpg" style="width:200px; height:200px; object-fit:contain; border-radius:15px; background:#fff; border:1px solid #f0f0f0;">
+                <div style="position: absolute; top: 10px; right: 10px; background: #ff4757; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">VIP ${userVipLevel}</div>
+            </div>
+            
+            <h4 style="margin: 0 0 15px; color: #2f3542; font-size: 16px; font-weight: 600;">${item.name}</h4>
+            
+            <div style="background: #f1f2f6; border-radius: 12px; padding: 15px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <span style="color: #747d8c; font-size: 14px;">Order Amount</span>
+                    <span style="font-weight: bold; color: #2f3542;">$${item.price.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #ced4da; pt: 10px; margin-top: 10px; padding-top: 10px;">
+                    <span style="color: #747d8c; font-size: 14px;">Commission</span>
+                    <span style="font-weight: 22px; color: #eb4d4b; font-size: 20px; font-weight: bold;">+$${parseFloat(commission).toLocaleString()}</span>
+                </div>
+            </div>
+            <p style="font-size: 11px; color: #a4b0be; margin-top: 15px;">Product matching completed. Please submit for settlement.</p>
+        </div>`;
+
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+}
+function closeOrderModal() {
+    const modal = document.getElementById('order-confirm-modal');
+    modal.style.display = 'none'; // Ẩn hoàn toàn để bấm được các tab khác
+}
+
+function finalizeOrder() {
+    // Đoạn này để cộng tiền vào Assets (USD) $0.00 của bạn
+    const assetsEl = document.getElementById('val-assets');
+    const commEl = document.getElementById('val-commission');
+    const ordersEl = document.getElementById('val-orders');
+
+    let currentAssets = parseFloat(assetsEl.innerText.replace('$', '')) || 0;
+    let currentComm = parseFloat(commEl.innerText.replace('$', '')) || 0;
+    let currentCount = parseInt(ordersEl.innerText) || 0;
+
+    assetsEl.innerText = "$" + (currentAssets + currentOrder.commission).toFixed(2);
+    commEl.innerText = "$" + (currentComm + currentOrder.commission).toFixed(2);
+    ordersEl.innerText = (currentCount + 1) + " Units";
+
+    closeOrderModal();
+}
+
+function closeOrderModal() {
+    document.getElementById('order-confirm-modal').classList.add('hidden');
+}
+function processSaveBank() {
+    // Lấy dữ liệu
+    const acc = document.getElementById('bank-acc-num').value;
+    const usdt = document.getElementById('usdt-address').value;
+    const statusDiv = document.getElementById('display-saved-info');
+
+    if(!acc || !usdt) {
+        alert("Please fill in Account Number and USDT Address");
+        return;
+    }
+
+    // Hàm che số: Giữ 3 đầu 3 cuối
+    const mask = (str) => {
+        if(str.length < 7) return "****";
+        return str.substring(0, 3) + "****" + str.substring(str.length - 3);
+    };
+
+    // Hiển thị kết quả đã che
+    statusDiv.innerHTML = `
+        <div style="background: #f4f4f4; padding: 10px; border-radius: 8px; border-left: 4px solid #1e90ff;">
+            <p style="color: green; font-weight: bold; margin: 0 0 5px 0;">✓ Saved Successfully!</p>
+            <p style="margin: 2px 0;">Bank Acc: ${mask(acc)}</p>
+            <p style="margin: 2px 0;">USDT: ${mask(usdt)}</p>
+        </div>
+    `;
+}
+
+// Hàm mở Modal (Sửa lại để không nhảy về Home)
+function openBankSettings() {
+    const modal = document.getElementById('bank-modal');
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    // Tuyệt đối không có lệnh switchTab('tab-home') ở đây
+}
+
+function closeBankModal() {
+    document.getElementById('bank-modal').style.display = 'none';
+}
+
+function openWithdrawPage() {
+    const modal = document.getElementById('info-modal');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    title.innerText = "Withdrawal";
+    
+    body.innerHTML = `
+        <div style="text-align: left; display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label style="font-weight: bold; font-size: 14px;">Amount to withdraw ($)</label>
+                <input type="number" id="withdraw-amount" placeholder="Min $20.00" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; box-sizing: border-box;">
+            </div>
+            <div>
+                <label style="font-weight: bold; font-size: 14px;">Withdraw to</label>
+                <select id="withdraw-method" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-top: 5px; background: white;">
+                    <option value="bank">Bank Account (Linked)</option>
+                    <option value="usdt">USDT Wallet (TRC20)</option>
+                </select>
+            </div>
+            <button onclick="confirmWithdrawStep()" style="width: 100%; padding: 15px; background: #1e90ff; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer;">
+                Withdraw Now
+            </button>
+        </div>
+    `;
+}
+
+// Hàm hiện nhập mật khẩu (Bước 2)
+function confirmWithdrawStep() {
+    const amount = document.getElementById('withdraw-amount').value;
+    if (!amount || amount <= 0) { alert("Please enter amount!"); return; }
+
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `
+        <div style="text-align: center;">
+            <h4 style="margin-bottom: 10px;">Security Verification</h4>
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Withdraw: <b>$${amount}</b>. Enter 6-digit password:</p>
+            <input type="password" id="tran-password" maxlength="6" placeholder="******" style="width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 24px; letter-spacing: 10px; margin-bottom: 20px;">
+            <button onclick="finalSubmitWithdraw()" style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">
+                Confirm & Submit
+            </button>
+            <p onclick="openWithdrawPage()" style="margin-top: 15px; color: #1e90ff; cursor: pointer; font-size: 13px;">Back</p>
+        </div>
+    `;
+}
+
+// Hàm xác nhận cuối cùng (Bước 3)
+function finalSubmitWithdraw() {
+    const pass = document.getElementById('tran-password').value;
+    if (pass.length < 6) { alert("Password must be 6 digits!"); return; }
+    
+    alert("Request submitted successfully!");
+    document.getElementById('info-modal').style.display = 'none';
+}
+function showLanguageModal() {
+    const modal = document.getElementById('info-modal');
+    const body = document.getElementById('modal-body');
+    
+    if(!modal) { alert("Thiếu thẻ info-modal trong HTML!"); return; }
+
+    modal.style.display = 'flex';
+    document.getElementById('modal-title').innerText = "Select Language";
+
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="changeLanguage('en', '🇺🇸 English')" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; cursor: pointer;">English</button>
+            <button onclick="changeLanguage('vi', '🇻🇳 Tiếng Việt')" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; cursor: pointer;">Tiếng Việt</button>
+            <button onclick="changeLanguage('zh', '🇨🇳 中文')" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; cursor: pointer;">中文</button>
+            <button onclick="changeLanguage('jp', '🇯🇵 日本語')" style="padding: 12px; border: 1px solid #eee; border-radius: 8px; background: white; cursor: pointer;">日本語</button>
+        </div>
+    `;
+}
+
+// Hàm này để thay đổi chữ trên toàn bộ trang web
+function changeLanguage(langCode, langName) {
+    document.getElementById('current-lang').innerText = langName;
+    
+    // Tìm tất cả các từ cần dịch (có class lang-text)
+    document.querySelectorAll('.lang-text').forEach(el => {
+        const newText = el.getAttribute('data-' + langCode);
+        if (newText) el.innerText = newText;
+    });
+
+    document.getElementById('info-modal').style.display = 'none';
+}
+function showLanguageModal() {
+    const modal = document.getElementById('info-modal');
+    const body = document.getElementById('modal-body');
+    modal.style.display = 'flex';
+    document.getElementById('modal-title').innerText = "Select Language";
+
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button onclick="changeLanguage('en', 'English')" style="padding: 12px; border-radius: 8px; border: 1px solid #eee; background: white;">🇺🇸 English</button>
+            <button onclick="changeLanguage('vi', 'Tiếng Việt')" style="padding: 12px; border-radius: 8px; border: 1px solid #eee; background: white;">🇻🇳 Tiếng Việt</button>
+            <button onclick="changeLanguage('zh', 'Chinese')" style="padding: 12px; border-radius: 8px; border: 1px solid #eee; background: white;">🇨🇳 中文</button>
+            <button onclick="changeLanguage('jp', 'Japanese')" style="padding: 12px; border-radius: 8px; border: 1px solid #eee; background: white;">🇯🇵 日本語</button>
+        </div>
+    `;
+}
+
+// 3. Hàm thực hiện đổi chữ trên màn hình
+function changeLanguage(langCode, langName) {
+    // Đổi tên hiển thị ở nút
+    document.getElementById('current-lang').innerText = langName;
+    
+    // Tìm tất cả các phần tử có class 'lang-text' để đổi chữ
+    document.querySelectorAll('.lang-text').forEach(el => {
+        const text = el.getAttribute(`data-${langCode}`);
+        if (text) el.innerText = text;
+    });
+
+    document.getElementById('info-modal').style.display = 'none';
+    localStorage.setItem('userLang', langCode); // Lưu lại lựa chọn
+}
+// 1. Hàm hiện bảng nhập mật khẩu
+function showChangePasswordModal() {
+    const modal = document.getElementById('info-modal');
+    const title = document.getElementById('modal-title');
+    const body = document.getElementById('modal-body');
+
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    title.innerText = "Change Password";
+
+    body.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 15px; padding: 10px;">
+            <input type="password" id="old-pass" placeholder="Old Password" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+            <input type="password" id="new-pass" placeholder="New Password" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+            <input type="password" id="confirm-pass" placeholder="Confirm New Password" style="padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none;">
+            <button onclick="saveNewPassword()" style="padding: 12px; background: #1e90ff; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Update Password</button>
+        </div>
+    `;
+}
+
+// 2. Hàm kiểm tra và LƯU NHỚ vào máy
+function saveNewPassword() {
+    const oldP = document.getElementById('old-pass').value;
+    const newP = document.getElementById('new-pass').value;
+    const conP = document.getElementById('confirm-pass').value;
+
+    // Lấy mật khẩu đang lưu (mặc định là 123456)
+    const storedPass = localStorage.getItem('userPassword') || '123456';
+
+    if (oldP !== storedPass) {
+        alert("Mật khẩu cũ không đúng!");
+        return;
+    }
+    if (newP.length < 6) {
+        alert("Mật khẩu mới phải từ 6 ký tự trở lên!");
+        return;
+    }
+    if (newP !== conP) {
+        alert("Xác nhận mật khẩu không khớp!");
+        return;
+    }
+
+    // LỆNH QUAN TRỌNG: Lưu mật khẩu mới vào bộ nhớ trình duyệt
+    localStorage.setItem('userPassword', newP);
+    
+    alert("Đổi mật khẩu thành công! Máy sẽ ghi nhớ mật khẩu mới của bạn.");
+    document.getElementById('info-modal').style.display = 'none';
+}
+function toggleMenu(show) {
+    const nav = document.getElementById('bottom-nav'); // Phải là bottom-nav mới khớp với ID trên
+    if (nav) {
+        nav.style.display = show ? 'flex' : 'none';
+    }
+}
+
+// Gắn vào hàm Login của bạn
+const originalHandleLogin = handleLogin;
+handleLogin = function() {
+    originalHandleLogin(); // Chạy các lệnh cũ của bạn
+    toggleMenu(true);      // Ép hiện menu
+};
+
+(function() {
+    let data = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    if (!data.some(item => item.price == 120000)) {
+        data.unshift({
+            name: "JUMIA VIP Special Package",
+            price: 120000,
+            commission: "6600",
+            status: "Pending",
+            time: new Date().toLocaleString(),
+            img: "https://ng.jumia.is/cms/0-1-c_category/generic_category/336x280_Electronics_Store.png"
+        });
+        localStorage.setItem('orderHistory', JSON.stringify(data));
+    }
+})();
+
+// 2. Hàm vẽ đơn hàng ra màn hình
+function veLichSu() {
+    let history = JSON.parse(localStorage.getItem('orderHistory')) || [];
+    let listArea = document.getElementById('history-list');
+    if (!listArea) return;
+
+    listArea.innerHTML = ""; 
+    history.forEach(item => {
+        listArea.innerHTML += `
+            <div style="background: white; margin: 10px; padding: 15px; border-radius: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <img src="${item.img}" style="width: 50px; height: 50px; border-radius: 5px;">
+                <div style="flex: 1;">
+                    <b style="font-size: 14px;">${item.name}</b><br>
+                    <span style="color: #666;">$${item.price.toLocaleString()}</span>
+                </div>
+                <div style="text-align: right;">
+                    <b style="color: #f68b1e;">${item.status}</b><br>
+                    <small style="color: #f68b1e;">+$${item.commission}</small>
+                </div>
+            </div>`;
+    });
+}
+
+// 3. "Ép" cái nút History của con phải chạy hàm vẽ này
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.nav-link')) {
+        let text = e.target.innerText || "";
+        if (text.includes("History")) {
+            // Đợi 0.1 giây để tab hiện lên rồi vẽ đơn hàng
+            setTimeout(veLichSu, 100) ;
+        }
+    }
+});
+(function() {
+    // 1. Tạo đơn hàng ảo 120k
+    let historyData = [
+        {
+            name: "JUMIA VIP Package Limited",
+            price: 120000,
+            commission: "6600",
+            status: "Pending",
+            time: new Date().toLocaleString(),
+            img: "https://ng.jumia.is/cms/0-1-c_category/generic_category/336x280_Electronics_Store.png"
+        }
+    ];
+
+    // 2. Tìm chỗ để hiện đơn hàng
+    let listArea = document.getElementById('history-list-content');
+    
+    if (listArea) {
+        listArea.innerHTML = ""; // Xóa trắng
+        historyData.forEach(item => {
+            listArea.innerHTML += `
+                <div style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 6px solid #f68b1e;">
+                    <img src="${item.img}" style="width: 55px; height: 55px; border-radius: 8px; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; font-size: 14px; color: #333;">${item.name}</div>
+                        <div style="color: #888; font-size: 13px; margin-top: 4px;">Total: <b style="color: #f68b1e;">$${item.price.toLocaleString()}</b></div>
+                        <div style="color: #bbb; font-size: 11px; margin-top: 4px;">${item.time}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="color: #f68b1e; font-weight: bold; font-size: 13px;">${item.status}</div>
+                        <div style="color: #ff9800; font-size: 12px; margin-top: 5px;">+$${item.commission}</div>
+                    </div>
+                </div>`;
+        });
+    }
+})();
+function renderHistory() {
+    const listArea = document.getElementById('history-list');
+    if (!listArea) return;
+
+    // Nội dung đơn hàng bị kẹt 120,000
+    listArea.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 15px; margin: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 5px solid #f68b1e;">
+            <img src="https://ng.jumia.is/cms/0-1-c_category/generic_category/336x280_Electronics_Store.png" style="width: 55px; height: 55px; border-radius: 8px; object-fit: cover;">
+            <div style="flex: 1;">
+                <b style="font-size: 14px; color: #333;">JUMIA VIP Special Package</b><br>
+                <span style="color: #666; font-size: 13px;">Amount: <b style="color: #f68b1e;">$120,000</b></span><br>
+                <small style="color: #bbb;">${new Date().toLocaleString()}</small>
+            </div>
+            <div style="text-align: right;">
+                <b style="color: #f68b1e; font-size: 13px;">Pending</b><br>
+                <small style="color: #ff9800;">+$6,600</small>
+            </div>
+        </div>
+    `;
+}
+
+function forceRenderHistory() {
+    // 1. Tìm cái khung chứa lịch sử trong HTML của con
+    let historyList = document.getElementById('history-list');
+    
+    // Nếu không tìm thấy khung, mẹ sẽ tự đi tìm cái thẻ tab-history của con để nhét vào
+    if (!historyList) {
+        let tabHistory = document.getElementById('tab-history');
+        if (tabHistory) {
+            tabHistory.innerHTML = '<div style="background:#f68b1e;color:white;padding:15px;text-align:center;font-weight:bold;">ORDER RECORDS</div><div id="history-list"></div>';
+            historyList = document.getElementById('history-list');
+        }
+    }
+
+    if (historyList) {
+        // 2. Nội dung đơn hàng kẹt 120,000 (Giao diện chuyên nghiệp)
+        historyList.innerHTML = `
+            <div style="background: white; border-radius: 12px; padding: 15px; margin: 10px; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 6px solid #f68b1e;">
+                <img src="https://ng.jumia.is/cms/0-1-c_category/generic_category/336x280_Electronics_Store.png" style="width: 55px; height: 55px; border-radius: 8px; object-fit: cover;">
+                <div style="flex: 1;">
+                    <b style="font-size: 14px; color: #333;">JUMIA VIP Package Limited</b><br>
+                    <span style="color: #666; font-size: 13px;">Amount: <b style="color: #f68b1e;">$120,000</b></span><br>
+                    <small style="color: #bbb;">Just now</small>
+                </div>
+                <div style="text-align: right;">
+                    <b style="color: #f68b1e; font-size: 13px;">Pending</b><br>
+                    <small style="color: #ff9800;">+$6,600</small>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// 3. Tự động lắng nghe sự kiện bấm nút History (Không cần sửa hàm switchTab)
+document.addEventListener('click', function(event) {
+    // Nếu bấm vào bất cứ thứ gì có chữ "History"
+    if (event.target.textContent.includes('History') || event.target.closest('.nav-link')?.textContent.includes('History')) {
+        // Đợi 0.2 giây cho tab nó hiện ra rồi mới vẽ đơn hàng
+        setTimeout(forceRenderHistory, 200);
+    }
+});
+
+// 4. Chạy luôn một lần khi vừa mở trang cho chắc
+setTimeout(forceRenderHistory, 1000);
+
+</script>
+<nav id="bottom-nav" class="bottom-navbar" style="display: none !important;">
+    <div class="nav-link active" onclick="switchTab('tab-home', this)">
+        <i class="fa fa-home"></i><b>Home</b>
+    </div>
+    <div class="nav-link" onclick="switchTab('tab-history', this); forceRenderHistory();">
+        <i class="fa fa-file-lines"></i><b>History</b>
+    </div>
+    <div class="nav-link" onclick="switchTab('tab-order', this)">
+        <i class="fa fa-shopping-cart"></i><b>Order</b>
+    </div>
+    <div class="nav-link" onclick="window.open('https://t.me/Jumiashopp_bot', '_blank')">
+        <i class="fa fa-headset"></i><b>Service</b>
+    </div>
+    <div class="nav-link" onclick="switchTab('tab-account', this)">
+        <i class="fa fa-gear"></i><b>Settings</b>
+    </div>
+</nav>
+
+<div id="tab-history" class="tab-section" style="padding-bottom: 80px;">
+    <div style="background: #f68b1e; color: white; padding: 15px; text-align: center; font-weight: bold;">
+     ORDER RECORDS
+    </div>
+    
+    <div id="history-list" style="padding: 10px;">
+    </div>
+</div>
+
+<div id="info-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+    <div style="background: white; width: 100%; max-width: 400px; border-radius: 20px; overflow: hidden; position: relative; animation: slideUp 0.3s ease-out;">
+        <div id="modal-title" style="background: var(--jumia-orange); color: white; padding: 15px; font-weight: bold; text-align: center;">Title</div>
+        <div id="modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto; line-height: 1.6; color: #444; font-size: 14px;">Content</div>
+        <button onclick="closeModal()" style="width: 100%; padding: 15px; border: none; background: #f0f0f0; font-weight: bold; cursor: pointer;">Close</button>
+    </div>
+    <div id="bank-modal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; width: 100%; max-width: 400px; border-radius: 20px; overflow: hidden;">
+        <div style="background: #1e90ff; color: white; padding: 15px; font-weight: bold; text-align: center;">Withdrawal Method</div>
+        <div style="padding: 20px;">
+            <input type="text" id="bank-name" placeholder="Bank Name" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            <input type="text" id="bank-account" placeholder="Bank Account / USDT Address" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px;">
+            <button onclick="saveBankInfo()" style="width: 100%; padding: 12px; background: #1e90ff; color: white; border: none; border-radius: 8px; font-weight: bold;">Save</button>
+            <button onclick="closeBankModal()" style="width: 100%; padding: 10px; border: none; background: none; color: #666; width:100%;">Cancel</button>
+        </div>
+    </div>
+</div>
+<div id="order-loading-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:white; padding:30px; border-radius:15px; text-align:center; width:80%;">
+        <div style="width:80px; height:80px; border:8px solid #f3f3f3; border-top:8px solid #1e90ff; border-radius:50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        <h2 id="loading-percent" style="margin-top:20px; color:#1e90ff;">0%</h2>
+        <p>Matching global merchants...</p>
+    </div>
+</div>
+
+<div id="order-confirm-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="background:white; padding:20px; border-radius:15px; width:85%;">
+        <h3 style="text-align:center; border-bottom:1px solid #eee; padding-bottom:10px;">Order Confirmation</h3>
+        <div id="order-detail-content" style="margin:15px 0; line-height:1.6;">
+            </div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="closeOrderModal()" style="flex:1; padding:12px; background:#ccc; border:none; border-radius:8px;">Cancel</button>
+            <button onclick="finalizeOrder()" style="flex:1; padding:12px; background:#1e90ff; color:white; border:none; border-radius:8px;">Submit</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .hidden { display: none !important; }
+</style>
+<div id="order-confirm-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; display:none; align-items:center; justify-content:center;">
+    <div style="background:white; padding:20px; border-radius:15px; width:85%; max-width:350px;">
+        <h3 style="text-align:center; margin-top:0;">Order Confirmation</h3>
+        <div id="order-detail-content"></div> 
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="closeOrderModal()" style="flex:1; padding:12px; background:#eee; border:none; border-radius:8px;">Cancel</button>
+            <button onclick="finalizeOrder()" style="flex:1; padding:12px; background:#1e90ff; color:white; border:none; border-radius:8px;">Submit</button>
+        </div>
+    </div>
+<div onclick="toggleAdmin()" style="position:fixed; top:10px; left:10px; width:35px; height:35px; z-index:10000; cursor:pointer; background:rgba(255,255,255,0.1); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid rgba(255,255,255,0.2);">⚙️</div>
+
+<div id="admin-panel" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; flex-direction: column;">
+    <div style="background: #333; color: white; padding: 15px;">
+        <h3>QUẢN TRỊ VIÊN</h3>
+        <button onclick="document.getElementById('admin-panel').style.display='none'">Đóng</button>
+    </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <button onclick="chuyenTab('nap')" id="btn-nap" style="flex:1; padding:12px; border-radius:10px; border:none; background:#0a84ff; color:white; font-weight:bold;">NẠP TIỀN</button>
+        <button onclick="chuyenTab('user')" id="btn-user" style="flex:1; padding:12px; border-radius:10px; border:none; background:#2c2c2e; color:#8e8e93; font-weight:bold;">NGƯỜI DÙNG</button>
+    </div>
+    <div id="vung-nap" style="display:block;">
+        <div style="background:#2c2c2e; padding:15px; border-radius:15px;">
+            <input type="text" id="target-id" placeholder="Nhập ID người nhận..." style="width:100%; padding:12px; border-radius:8px; border:none; background:#1c1e1e; color:#30d158; margin-bottom:10px; box-sizing:border-box;">
+            <input type="number" id="target-amt" placeholder="Số tiền..." style="width:100%; padding:12px; border-radius:8px; border:none; background:#1c1e1e; color:white; margin-bottom:15px; box-sizing:border-box;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="lenhAdmin('add')" style="flex:1; padding:15px; background:#30d158; color:white; border:none; border-radius:10px; font-weight:bold;">+ CỘNG TIỀN</button>
+                <button onclick="lenhAdmin('sub')" style="flex:1; padding:15px; background:#ff453a; color:white; border:none; border-radius:10px; font-weight:bold;">- TRỪ TIỀN</button>
+            </div>
+        </div>
+        <select id="sel-vip" onchange="lenhAdmin('vip')" style="width:100%; padding:12px; border-radius:8px; border:none; background:#2c2c2e; color:white; margin-top:15px;">
+            <option value="0">-- THIẾT LẬP VIP --</option>
+            <option value="1">VIP 1</option><option value="2">VIP 2</option><option value="3">VIP 3</option><option value="4">VIP 4</option><option value="5">VIP 5</option>
+        </select>
+    </div>
+    <div id="vung-user" style="display:none; flex:1; overflow-y:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:12px;"><tbody id="hien-list-u"></tbody></table>
+    </div>
+</div>
+</body>
+</html>
