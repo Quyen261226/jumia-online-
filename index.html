@@ -1070,22 +1070,22 @@ function saveNewPassword() {
     const storedPass = localStorage.getItem('userPassword') || '123456';
 
     if (oldP !== storedPass) {
-        alert("Mật khẩu cũ không đúng!");
+        alert("Password successfully changed!");
         return;
     }
     if (newP.length < 6) {
-        alert("Mật khẩu mới phải từ 6 ký tự trở lên!");
+        alert("The new password must be at least 6 characters long!");
         return;
     }
     if (newP !== conP) {
-        alert("Xác nhận mật khẩu không khớp!");
+        alert("Password confirmation does not match!");
         return;
     }
 
     // LỆNH QUAN TRỌNG: Lưu mật khẩu mới vào bộ nhớ trình duyệt
     localStorage.setItem('userPassword', newP);
     
-    alert("Đổi mật khẩu thành công! Máy sẽ ghi nhớ mật khẩu mới của bạn.");
+    alert("Password changed successfully! The device will remember your new password.");
     document.getElementById('info-modal').style.display = 'none';
 }
 function toggleMenu(show) {
