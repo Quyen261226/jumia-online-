@@ -351,36 +351,22 @@ if(document.getElementById('user-id-display')) {
 
     loadingModal.classList.remove('hidden');
     let percent = 0;
+    const currentOrders = parseInt(ordersEl.innerText) || 0;
 
     let interval = setInterval(() => {
         percent += Math.floor(Math.random() * 15) + 5;
-        
-        // Đọc số đơn hiện tại ra để xử lý hiển thị
-        let currentOrders = parseInt(localStorage.getItem('user_orders_today')) || parseInt(ordersEl.innerText) || 0;
-
         if (percent >= 100) {
             percent = 100;
             clearInterval(interval);
-            
-            // Tăng đơn thực tế, khống chế tối đa 100 và LƯU NGAY VÀO MÁY
-            currentOrders++;
-            if (currentOrders >= 100) {
-                currentOrders = 100;
-            }
-            
-            ordersEl.innerText = currentOrders + " Units";
-            localStorage.setItem('user_orders_today', currentOrders); // Lệnh lưu không mất dữ liệu
-
             setTimeout(() => {
                 loadingModal.classList.add('hidden');
                 showOrderConfirmation();
             }, 500);
         }
-
-        // Cập nhật chữ hiển thị khống chế mốc 100 đơn (Dòng 360 cũ)
         loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";
         document.getElementById('order-loading-percent').innerText = percent + "%";
     }, 200);
+}
 function toggleAdmin() {
     // Đừng bao giờ ghi mật khẩu vào đây! Hãy đổi sang một biến gián tiếp (ví dụ: 'admin@123')
     const ADMIN_KEY = "000000"; 
