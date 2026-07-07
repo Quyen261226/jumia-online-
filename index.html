@@ -344,14 +344,23 @@ if(document.getElementById('user-id-display')) {
     }
 }
 
-    function startOrderEffect() {
-    const loadingModal = document.getElementById('order-loading-modal');
-    const loadingText = document.getElementById('order-loading-text');
+       function startOrderEffect() {
+    // 1. Kiểm tra số đơn hàng hiện tại hiển thị trên màn hình
     const ordersEl = document.getElementById('val-orders');
+    let currentCount = parseInt(ordersEl.innerText) || 0;
+
+    // 2. Nếu đạt từ 100 đơn trở lên thì dừng lại và báo lỗi, không chạy hiệu ứng quay nữa
+    if (currentCount >= 100) {
+        alert("Tài khoản của bạn đã hoàn thành tối đa 100 đơn hàng trong ngày!");
+        return; 
+    }
+
+    // --- Giữ nguyên đoạn code chạy hiệu ứng cũ của bạn ở dưới ---
+    const loadingModal = document.getElementById('order-loading-modal');
+    loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";s
 
     loadingModal.classList.remove('hidden');
     let percent = 0;
-    const currentOrders = parseInt(ordersEl.innerText) || 0;
 
     let interval = setInterval(() => {
         percent += Math.floor(Math.random() * 15) + 5;
@@ -363,8 +372,7 @@ if(document.getElementById('user-id-display')) {
                 showOrderConfirmation();
             }, 500);
         }
-        loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";
-        document.getElementById('order-loading-percent').innerText = percent + "%";
+        loadingText.innerText = percent + "%";
     }, 200);
 }
 function toggleAdmin() {
