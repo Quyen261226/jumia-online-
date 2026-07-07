@@ -357,7 +357,7 @@ if(document.getElementById('user-id-display')) {
 
     // --- Giữ nguyên đoạn code chạy hiệu ứng cũ của bạn ở dưới ---
     const loadingModal = document.getElementById('order-loading-modal');
-    const loadingText = document.getElementById('loading-percent');
+    loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";s
     
     loadingModal.classList.remove('hidden');
     let percent = 0;
