@@ -155,7 +155,7 @@
     <div class="stats-grid">
         <div class="stat-item">
             <small>Total Assets (USD)</small>
-            <b id="val-assets">$136,700.00</b>
+            <b id="val-assets">$141.700.00</b>
         </div>
         <div class="stat-item">
             <small>Commission Today</small>
@@ -247,6 +247,7 @@
 
 </div>
 <script>
+document.getElementById('val-orders').innerText = (localStorage.getItem('user_orders_today') || 0) + " Units";
     
     const g1 = ["+84","+1","+44","+91","+81","+20","+212","+254","+27","+33","+49","+61"];
     const g2 = ["+357","+420","+45","+253","+593","+503","+240","+291","+372","+251"];
@@ -345,36 +346,42 @@ if(document.getElementById('user-id-display')) {
 }
 
     function startOrderEffect() {
-    // 1. Kiểm tra số đơn hàng hiện tại hiển thị trên màn hình
-    const ordersEl = document.getElementById('val-orders');
-    let currentCount = parseInt(ordersEl.innerText) || 0;
-
-    // 2. Nếu đạt từ 100 đơn trở lên thì dừng lại và báo lỗi, không chạy hiệu ứng quay nữa
-    if (currentCount >= 100) {
-        alert("Tài khoản của bạn đã hoàn thành tối đa 100 đơn hàng trong ngày!");
-        return; 
-    }
-
-    // --- Giữ nguyên đoạn code chạy hiệu ứng cũ của bạn ở dưới ---
     const loadingModal = document.getElementById('order-loading-modal');
-    loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";s
-    
+    const loadingText = document.getElementById('order-loading-text');
+    const ordersEl = document.getElementById('val-orders');
+
     loadingModal.classList.remove('hidden');
     let percent = 0;
-    
+
     let interval = setInterval(() => {
         percent += Math.floor(Math.random() * 15) + 5;
+        
+        // Đọc số đơn hiện tại ra để xử lý hiển thị
+        let currentOrders = parseInt(localStorage.getItem('user_orders_today')) || parseInt(ordersEl.innerText) || 0;
+
         if (percent >= 100) {
             percent = 100;
             clearInterval(interval);
+            
+            // Tăng đơn thực tế, khống chế tối đa 100 và LƯU NGAY VÀO MÁY
+            currentOrders++;
+            if (currentOrders >= 100) {
+                currentOrders = 100;
+            }
+            
+            ordersEl.innerText = currentOrders + " Units";
+            localStorage.setItem('user_orders_today', currentOrders); // Lệnh lưu không mất dữ liệu
+
             setTimeout(() => {
                 loadingModal.classList.add('hidden');
                 showOrderConfirmation();
             }, 500);
         }
-        loadingText.innerText = percent + "%";
+
+        // Cập nhật chữ hiển thị khống chế mốc 100 đơn (Dòng 360 cũ)
+        loadingText.innerText = "Đang xử lý đơn hàng thứ " + (currentOrders >= 100 ? 100 : currentOrders + 1) + "...";
+        document.getElementById('order-loading-percent').innerText = percent + "%";
     }, 200);
-}
 function toggleAdmin() {
     // Đừng bao giờ ghi mật khẩu vào đây! Hãy đổi sang một biến gián tiếp (ví dụ: 'admin@123')
     const ADMIN_KEY = "000000"; 
